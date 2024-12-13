@@ -29,6 +29,7 @@ public class Shell {
 
             // Extend the image with ExtendImage
             ExtendImage extendedImage = new ExtendImage(originalImage.getPixelArray(), originalImage.getWidth(), originalImage.getHeight());
+            // TODO: this part is not working because the inherits problem
             System.out.println("Extended image brightness: " + extendedImage.getBrightnessGrade());
 
             // Optionally, save the extended image to a file
@@ -48,7 +49,7 @@ public class Shell {
         // Create an instance of Shell and call the test method
         Shell shell = new Shell();
 //        shell.testSubImgCharMatcher();
-//        shell.testPadAndExtend();
+        shell.testPadAndExtend();
 
 
     }

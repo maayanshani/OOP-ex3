@@ -10,6 +10,8 @@ public class ExtendImage extends Image {
     private final Color[][] pixelArray;
     private final int width;
     private final int height;
+    private double brightnessGrade;
+
 
     // TODO: figure a better solution for not override getters, save image, brightness
     // TODO: catch the extension in shell
@@ -39,6 +41,8 @@ public class ExtendImage extends Image {
         this.pixelArray = extendedPixelArray;
         this.width = newWidth;
         this.height = newHeight;
+        this.brightnessGrade = super.getBrightnessGrade();
+
     }
 
     @Override
@@ -55,6 +59,12 @@ public class ExtendImage extends Image {
     public Color getPixel(int x, int y) {
         return pixelArray[y][x];
     }
+
+    @Override
+    public double getBrightnessGrade() {
+        return brightnessGrade;
+    }
+
 
     private int calculateSidePixels(int originalDim, int extendedDim) {
         // we can assume the dimensions are always even
