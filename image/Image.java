@@ -6,21 +6,32 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+/* TODO:
+1. add white pixels
+2. divide to sub-images
+3. calculate the image brightness
+
+ */
+
+
+
 /**
  * A package-private class of the package image.
  * @author Dan Nirel
  */
 public class Image {
 
+    private static final int MAX_RGB = 255;
+
     private final Color[][] pixelArray;
     private final int width;
     private final int height;
+    private double brightnessGrade;
 
     public Image(String filename) throws IOException {
         BufferedImage im = ImageIO.read(new File(filename));
         width = im.getWidth();
         height = im.getHeight();
-
 
         pixelArray = new Color[height][width];
         for (int i = 0; i < height; i++) {
@@ -28,12 +39,15 @@ public class Image {
                 pixelArray[i][j]=new Color(im.getRGB(j, i));
             }
         }
+        brightnessGrade = imageBrightness();
     }
 
     public Image(Color[][] pixelArray, int width, int height) {
         this.pixelArray = pixelArray;
         this.width = width;
         this.height = height;
+        this.brightnessGrade = imageBrightness();
+
     }
 
     public int getWidth() {
@@ -46,6 +60,33 @@ public class Image {
 
     public Color getPixel(int x, int y) {
         return pixelArray[x][y];
+    }
+
+    // TODO: delete this method, only for tests
+    public Color[][] getPixelArray() {
+        return pixelArray;
+    }
+
+    // TODO: maybe should be a class?
+    private double imageBrightness() {
+        double greyPixelsSum = 0;
+        int numPixels = height * width;
+        Color[][] greyPixelArray = new Color[height][width];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                Color curPixel = pixelArray[i][j];
+                double greyPixel = curPixel.getRed() * 0.2126 +
+                                        curPixel.getGreen() * 0.7152 + curPixel.getBlue() * 0.0722;
+                greyPixelsSum += greyPixel;
+            }
+        }
+        return greyPixelsSum/numPixels/MAX_RGB;
+
+    }
+
+    // TODO: wasn't in the OG API, needed to be added in the README
+    public double getBrightnessGrade() {
+        return brightnessGrade;
     }
 
     public void saveImage(String fileName){
