@@ -2,6 +2,9 @@ package image_char_matching;
 
 import java.util.*;
 
+
+// TODO: add round above/ beneath
+
 /**
  * SubImgCharMatcher is a utility class that maps characters to brightness values,
  * normalizes these values, and allows efficient retrieval of the closest matching character
@@ -86,8 +89,8 @@ public class SubImgCharMatcher {
      * @return The normalized brightness value.
      */
     private Double getCharBrightnessValue(char c) {
-        boolean[][] boolArray = CharConverter.convertToBoolArray(c);
-        int numTrueCells = getNumTrueCells(boolArray);
+        boolean[][] boolMatrix = CharConverter.convertToBoolArray(c);
+        int numTrueCells = getNumTrueCells(boolMatrix);
         double value = (double) numTrueCells / NUM_CELLS;
         if (value < 0 || value > 1) {
             System.out.println("value < 0 or value > 1");
@@ -97,13 +100,13 @@ public class SubImgCharMatcher {
 
     /**
      * Counts the number of true cells in a boolean representation of a character.
-     * @param boolArray 2D boolean array representing the character.
+     * @param boolMatrix 2D boolean array representing the character.
      * @return The count of true cells.
      */
-    private int getNumTrueCells(boolean[][] boolArray) {
+    private int getNumTrueCells(boolean[][] boolMatrix) {
         int counter = 0;
 
-        for (boolean[] row : boolArray) {
+        for (boolean[] row : boolMatrix) {
             for (boolean cell : row) {
                 if (cell) {
                     counter++;
