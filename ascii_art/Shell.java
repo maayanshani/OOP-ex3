@@ -10,17 +10,31 @@ import java.io.IOException;
 public class Shell {
 
     private void testSubImgCharMatcher() {
-        char[] chars = {'0', '1', '2', '3', '`'};
+        char[] chars = {'o', 'm'};
         SubImgCharMatcher charMatcher = new SubImgCharMatcher(chars);
         int N = 10;
-        for (int i = 0; i < N; i++) {
+        System.out.println(chars);
+        for (int i = 0; i < N + 1; i++) {
+            System.out.println(charMatcher.getCharByImageBrightness(i/(double)N));
+        }
+        charMatcher.addChar('s');
+        charMatcher.addChar('n');
+        chars = new char[]{'o', 'm', 's', 'n'};
+        System.out.println(chars);
+        for (int i = 0; i < N + 1; i++) {
+            System.out.println(charMatcher.getCharByImageBrightness(i/(double)N));
+        }
+        charMatcher.removeChar('o');
+        chars = new char[]{'m', 's', 'n'};
+        System.out.println(chars);
+        for (int i = 0; i < N + 1; i++) {
             System.out.println(charMatcher.getCharByImageBrightness(i/(double)N));
         }
     }
 
     private void testPadAndExtend() {
         // ! for the test to work, need to add the image in the "Ex3" folder !
-        String imagePath = "cat.jpeg";  // Replace with the actual path
+        String imagePath = "examples/cat.jpeg";  // Replace with the actual path
 
         try {
             // Load the image with the Image class constructor
@@ -48,8 +62,8 @@ public class Shell {
     public static void main(String[] args) {
         // Create an instance of Shell and call the test method
         Shell shell = new Shell();
-//        shell.testSubImgCharMatcher();
-        shell.testPadAndExtend();
+        shell.testSubImgCharMatcher();
+//        shell.testPadAndExtend();
 
 
     }

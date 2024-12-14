@@ -1,91 +1,107 @@
 package image_char_matching;
+
 import java.util.*;
 
-// TODO
-
 /**
- * 1. add priority to ascii
+ * SubImgCharMatcher is a utility class that maps characters to brightness values,
+ * normalizes these values, and allows efficient retrieval of the closest matching character
+ * based on a given brightness level.
  */
-
-
 public class SubImgCharMatcher {
 
-    private final int NUM_CELLS = 16;
-    private Map<Character, Double> charMap;
-    private TreeMap<Double, Character> sortedCharMap;
-    private double minValue;
-    private double maxValue;
-    private int numTimesMaxValue;
-    private int numTimesMinValue;
+    private final int NUM_CELLS = 16 * 16; // Total cells in a boolean representation of a character
+    private Map<Character, Double> charMap; // Stores raw brightness values for each character
+    private Map<Character, Double> brightnessCharMap; // Stores normalized brightness values
+    private double minValue; // Minimum brightness value
+    private double maxValue; // Maximum brightness value
 
-
-
+    /**
+     * Constructor to initialize the character matcher with a set of characters.
+     * @param charset Array of characters to be added to the matcher.
+     */
     public SubImgCharMatcher(char[] charset) {
         this.charMap = new HashMap<>();
-        this.sortedCharMap = new TreeMap<>();
+        this.brightnessCharMap = new HashMap<>();
 
         minValue = Double.POSITIVE_INFINITY;
         maxValue = Double.NEGATIVE_INFINITY;
 
         for (char c : charset) {
             double value = 0;
-            try {
-                value = getCharBrightnessValue(c);
-                updateMin(value);
-                updateMax(value);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            value = getCharBrightnessValue(c);
+            updateMin(value);
+            updateMax(value);
             this.charMap.put(c, value);
         }
-        createTree();
+        createBrightnessCharMap();
     }
 
+    /**
+     * Updates the maximum brightness value based on the given value.
+     * @param value Brightness value to compare against the current maxValue.
+     */
     private void updateMax(double value) {
         if (value > maxValue) {
             maxValue = value;
-            numTimesMaxValue = 1;
-        } else if (value == maxValue) {
-            numTimesMaxValue++;
         }
     }
 
+    /**
+     * Updates the minimum brightness value based on the given value.
+     * @param value Brightness value to compare against the current minValue.
+     */
     private void updateMin(double value) {
         if (value < minValue) {
             minValue = value;
-            numTimesMinValue = 1;
-        } else if (value == minValue) {
-            numTimesMinValue++;
         }
     }
 
+    /**
+     * Finds the character with the closest normalized brightness to the given brightness.
+     * In case of ties, the character with the lower ASCII value is selected.
+     * @param brightness The target brightness value.
+     * @return The character closest to the given brightness.
+     */
     public char getCharByImageBrightness(double brightness) {
-        // Get the closest lower or equal entry (floor) in the TreeMap
-        Map.Entry<Double, Character> floorEntry = sortedCharMap.floorEntry(brightness);
+        char closestChar = '\0';
+        double closestDistance = Double.POSITIVE_INFINITY;
 
-        // Get the closest higher or equal entry (ceiling) in the TreeMap
-        Map.Entry<Double, Character> ceilingEntry = sortedCharMap.ceilingEntry(brightness);
+        for (Map.Entry<Character, Double> entry : brightnessCharMap.entrySet()) {
+            Character currentChar = entry.getKey();
+            Double charBrightness = entry.getValue();
+            double distance = Math.abs(charBrightness - brightness);
 
-        // Handle cases where only one of the entries exists
-        if (floorEntry == null) return ceilingEntry.getValue(); // No lower bound
-        if (ceilingEntry == null) return floorEntry.getValue(); // No upper bound
-
-        // Compare distances to determine the closest match
-        double floorDiff = Math.abs(floorEntry.getKey() - brightness);
-        double ceilingDiff = Math.abs(ceilingEntry.getKey() - brightness);
-
-        return (floorDiff <= ceilingDiff) ? floorEntry.getValue() : ceilingEntry.getValue();
+            if (distance < closestDistance ||
+                    (distance == closestDistance && currentChar < closestChar)) {
+                closestChar = currentChar;
+                closestDistance = distance; // Correctly update closestDistance
+            }
+        }
+        return closestChar;
     }
 
-
-    private Double getCharBrightnessValue(char c) throws Exception {
+    /**
+     * Calculates the brightness value of a character based on its boolean representation.
+     * @param c The character whose brightness is to be calculated.
+     * @return The normalized brightness value.
+     */
+    private Double getCharBrightnessValue(char c) {
         boolean[][] boolArray = CharConverter.convertToBoolArray(c);
-        return getNumTrueCells(boolArray);
+        int numTrueCells = getNumTrueCells(boolArray);
+        double value = (double) numTrueCells / NUM_CELLS;
+        if (value < 0 || value > 1) {
+            System.out.println("value < 0 or value > 1");
+        }
+        return value;
     }
 
-    private double getNumTrueCells(boolean[][] boolArray) throws Exception {
+    /**
+     * Counts the number of true cells in a boolean representation of a character.
+     * @param boolArray 2D boolean array representing the character.
+     * @return The count of true cells.
+     */
+    private int getNumTrueCells(boolean[][] boolArray) {
         int counter = 0;
-        int numCells = NUM_CELLS * NUM_CELLS;
 
         for (boolean[] row : boolArray) {
             for (boolean cell : row) {
@@ -94,24 +110,25 @@ public class SubImgCharMatcher {
                 }
             }
         }
-        System.out.println(counter + " " + numCells);
-
-        double value = (double) counter / numCells;
-        if (value < 0 || value > 1 ) {
-            throw new Exception("value < 0 or value > 1");
-        }
         return counter;
     }
 
-    private void createTree() {
+    /**
+     * Normalizes the brightness values and stores them in the brightnessCharMap.
+     */
+    private void createBrightnessCharMap() {
         for (Map.Entry<Character, Double> entry : charMap.entrySet()) {
             double normalizedBrightness = (entry.getValue() - minValue) / (maxValue - minValue);
-            sortedCharMap.put(normalizedBrightness, entry.getKey());
+            brightnessCharMap.put(entry.getKey(), normalizedBrightness);
             System.out.println(entry.getKey() + "   " + normalizedBrightness);
         }
     }
 
-    public void addChar(char c) throws Exception {
+    /**
+     * Adds a new character to the matcher and updates brightness maps if necessary.
+     * @param c The character to add.
+     */
+    public void addChar(char c) {
         if (charMap.containsKey(c)) {
             return; // Character already exists
         }
@@ -128,58 +145,52 @@ public class SubImgCharMatcher {
         } else if (value < minValue) {
             minValue = value;
             minOrMaxUpdated = true;
-        } else if (value == maxValue) {
-            numTimesMaxValue++;
-        } else if (value == minValue) {
-            numTimesMinValue++;
         }
 
-        // Recreate the TreeMap if min or max was updated
+        // Recreate the brightnessCharMap if min or max was updated
         if (minOrMaxUpdated) {
-            sortedCharMap.clear();
-            createTree();
+            brightnessCharMap.clear();
+            createBrightnessCharMap();
         } else {
             // Add the new normalized value to the TreeMap
             double normalizedBrightness = (value - minValue) / (maxValue - minValue);
-            sortedCharMap.put(normalizedBrightness, c);
+            brightnessCharMap.put(c, normalizedBrightness);
         }
     }
 
+    /**
+     * Recalculates minValue and maxValue based on the current character map.
+     */
+    public void findNewMinMax() {
+        minValue = Double.POSITIVE_INFINITY;
+        maxValue = Double.NEGATIVE_INFINITY;
 
+        for (double value : charMap.values()) {
+            updateMax(value);
+            updateMin(value);
+        }
+    }
+
+    /**
+     * Removes a character from the matcher and updates brightness maps if necessary.
+     * @param c The character to remove.
+     */
     public void removeChar(char c) {
-        Double value = charMap.remove(c);
-
-        // If the character doesn't exist, do nothing
-        if (value == null) {
+        // char doesn't exist
+        if (!charMap.containsKey(c)) {
             return;
         }
 
+        Double value = charMap.get(c);
+        charMap.remove(c);
+        brightnessCharMap.remove(c);
+
         // Handle cases where minValue or maxValue is affected
-        if (value.equals(maxValue)) {
-            numTimesMaxValue--;
-            if (numTimesMaxValue == 0) {
-                // Recompute maxValue
-                maxValue = Double.NEGATIVE_INFINITY;
-                for (double v : charMap.values()) {
-                    updateMax(v);
-                }
-            }
+        if (value == maxValue || value == minValue) {
+            // Recreate the TreeMap
+            brightnessCharMap.clear();
+            findNewMinMax();
+            createBrightnessCharMap();
         }
-
-        if (value.equals(minValue)) {
-            numTimesMinValue--;
-            if (numTimesMinValue == 0) {
-                // Recompute minValue
-                minValue = Double.POSITIVE_INFINITY;
-                for (double v : charMap.values()) {
-                    updateMin(v);
-                }
-            }
-        }
-
-        // Recreate the TreeMap
-        sortedCharMap.clear();
-        createTree();
     }
-
 }
