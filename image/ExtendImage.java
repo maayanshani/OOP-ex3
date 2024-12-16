@@ -41,7 +41,6 @@ public class ExtendImage extends Image {
         this.pixelArray = extendedPixelArray;
         this.width = newWidth;
         this.height = newHeight;
-        this.brightnessGrade = super.getBrightnessGrade();
 
     }
 
@@ -59,12 +58,6 @@ public class ExtendImage extends Image {
     public Color getPixel(int x, int y) {
         return pixelArray[y][x];
     }
-
-    @Override
-    public double getBrightnessGrade() {
-        return brightnessGrade;
-    }
-
 
     private int calculateSidePixels(int originalDim, int extendedDim) {
         // we can assume the dimensions are always even

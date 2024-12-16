@@ -12,6 +12,10 @@ import java.util.*;
  */
 public class SubImgCharMatcher {
 
+    private static final double MIN_BRIGTHNESS = 0;
+    private static final double MAX_BRIGHTNESS = 1;
+    private static final String ILLEGEAL_BRIGHTNESS_VALUE_MESSAGE =
+            "Brightness value must be between 0 and 1.";
     private final int NUM_CELLS = 16 * 16; // Total cells in a boolean representation of a character
     private Map<Character, Double> charMap; // Stores raw brightness values for each character
     private Map<Character, Double> brightnessCharMap; // Stores normalized brightness values
@@ -65,7 +69,11 @@ public class SubImgCharMatcher {
      * @param brightness The target brightness value.
      * @return The character closest to the given brightness.
      */
-    public char getCharByImageBrightness(double brightness) {
+    public char getCharByImageBrightness(double brightness) throws IllegalArgumentException {
+        if (brightness < MIN_BRIGTHNESS || brightness > MAX_BRIGHTNESS) {
+            throw new IllegalArgumentException(ILLEGEAL_BRIGHTNESS_VALUE_MESSAGE);
+        }
+
         char closestChar = '\0';
         double closestDistance = Double.POSITIVE_INFINITY;
 
@@ -143,10 +151,10 @@ public class SubImgCharMatcher {
 
         // Update minValue or maxValue if needed
         if (value > maxValue) {
-            maxValue = value;
+            updateMax(value);
             minOrMaxUpdated = true;
         } else if (value < minValue) {
-            minValue = value;
+            updateMin(value);
             minOrMaxUpdated = true;
         }
 
