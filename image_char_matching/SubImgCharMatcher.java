@@ -21,7 +21,6 @@ public class SubImgCharMatcher {
     private Map<Character, Double> brightnessCharMap; // Stores normalized brightness values
     private double minValue; // Minimum brightness value
     private double maxValue; // Maximum brightness value
-
     /**
      * Constructor to initialize the character matcher with a set of characters.
      * @param charset Array of characters to be added to the matcher.

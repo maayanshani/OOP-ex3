@@ -1,13 +1,10 @@
 package ascii_art;
 
-import image.ExtendImage;
 import image.Image;
 import image_char_matching.SubImgCharMatcher;
 
-import java.awt.*;
-import java.io.IOException;
-
-import static java.text.NumberFormat.Field.PREFIX;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class Shell {
     private static final char ONE = '1';
@@ -21,10 +18,24 @@ public class Shell {
     private static final char NINE = '9';
     private static final char ZERO = '0';
     private static final String PREFIX_MESSAGE = ">>> ";
-    private static final String EXIT_MESSAGE = "exit";
+    private static final String EXIT_MESSAGE = "exit"; // Maayan
+    private static final String CHARS_MESSAGE = "chars"; // Maayan
+    private static final String ADD_MESSAGE = "add"; // Maayan
+    private static final String REMOVE_MESSAGE = "remove"; // Maayan
+    private static final String RES_MESSAGE = "res"; // Rotem
+    private static final String OUTPUT_MESSAGE = "output"; // Rotem
+    private static final String ROUND_MESSAGE = "round"; // Maayan
+    private static final String ASCII_ART_MESSAGE = "asciiArt"; // Rotem
+    private static final String WRONG_NUM_ARGS_ERROR =
+            "Wrong number of arguments. Should get 1 argument: imagePath.";
+    private static final String SPACE_AND_ETC = "(\\s.*)?";
+
+    private SortedSet<Character> sortedChars;
 
 
-    public Shell(){}
+    public Shell(){
+        sortedChars = new TreeSet<>();
+    }
 
     private void testSubImgCharMatcher() {
         char[] chars = {'o', 'm'};
@@ -46,6 +57,22 @@ public class Shell {
         System.out.println(chars);
         for (int i = 0; i < N + 1; i++) {
             System.out.println(charMatcher.getCharByImageBrightness(i/(double)N));
+        }
+    }
+
+    private void testAsciiArtAlgorithm(){
+        System.out.println("testAsciiArtAlgorithm");
+        try {
+            Image image = new Image("examples/board.jpeg");
+            AsciiArtAlgorithm algo = new AsciiArtAlgorithm(image, DEFAULT_RESOLUTION, new char[]{'m', 'o'});
+            char[][] newPhoto = algo.run();
+            for (char[] row: newPhoto){
+                for (char c: row) {
+                    System.out.println(c);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("error: "+ e);
         }
     }
 
@@ -74,27 +101,97 @@ public class Shell {
 //
 //    }
 
+    private void testHandleChars() {
+        initializeDefaultChars();
+        handleCharsInput();
+    }
+
+    private void initializeDefaultChars() {
+        for (char c = ZERO; c <= NINE; c++) {
+            sortedChars.add(c);
+        }
+    }
+
     public void run(String imageName){
         // todo: create image and implement this
         try {
             Image image = new Image("asdfg");
-        } catch (Exception e) {
-
-        }
+        } catch (Exception e) {}
         char[] chars = createBasicCharsSet();
 
         System.out.println(PREFIX_MESSAGE);
         while (true) {
-
-        String input = KeyboardInput.readLine();
-        switch (input) {
-            case EXIT_MESSAGE:
-                return;
+            String input = KeyboardInput.readLine();
+            /**
+             * MAAYAN:
+             * I change to this method because the inputs might be a bit different
+             * see the documentation of each section
+             */
+            handleInput(input);
+//            switch (input) {
+//                case EXIT_MESSAGE:
+//                    handleExit();
+//                    return;
+//                case CHARS_MESSAGE:
+//                    handleChars();
+//                case ADD_MESSAGE:
+//                    handleAdd();
+//                case REMOVE_MESSAGE:
+//                    handleRemove();
+//                case RES_MESSAGE:
+//                    handleRes();
+//                case OUTPUT_MESSAGE:
+//                    handleOutput();
+//                case ROUND_MESSAGE:
+//                    handleRound();
+//                case ASCII_ART_MESSAGE:
+//                    handleAsciiArt();
+//                }
+            System.out.println(PREFIX_MESSAGE);
             }
-        }
     }
 
+    private void handleInput(String input) {
+        if (input.equals(EXIT_MESSAGE)) {
+            return;
+        } else if (input.matches(CHARS_MESSAGE + SPACE_AND_ETC)) {
+            handleCharsInput();
+        }
+
+    }
+
+    private void handleAsciiArt() {
+
+    }
+
+    private void handleRound() {
+    }
+
+    private void handleOutput() {
+    }
+
+    private void handleRes() {
+    }
+
+    private void handleRemove() {
+    }
+
+    private void handleCharsInput() {
+        for (char c : sortedChars) {
+            System.out.print(c + " ");
+        }
+//        System.out.println();
+    }
+    
+    private void handleAdd() {
+    }
+
+    private void handleExit() {
+    }
+
+
     private char[] createBasicCharsSet() {
+        // todo: maybe change to array<>
         return new char[] {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE};
     }
 
@@ -104,12 +201,12 @@ public class Shell {
         Shell shell = new Shell();
 //        shell.testSubImgCharMatcher();
 //        shell.testPadAndExtend();
+//        shell.testAsciiArtAlgorithm();
+        shell.testHandleChars();
         if (args.length != 1) {
-            return;
+            throw new RuntimeException(WRONG_NUM_ARGS_ERROR);
         }
         String imagePath = args[0];
         shell.run(imagePath);
-
-
     }
 }
