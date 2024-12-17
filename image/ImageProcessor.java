@@ -70,22 +70,26 @@ public class ImageProcessor {
     }
 
     public Image[][] divideImage(Image image, int numSubImagesInRow)  {
-        // TODO: what is "valid resolution"?
-        int subImageDim = image.getWidth() / numSubImagesInRow;
-        int numSubImagesInCol = image.getHeight() / subImageDim;
+        // TODO: what is "valid resolution"? add Exceptions
+        // Calculate sub-image dimensions
+        int subImageWidth = image.getWidth() / numSubImagesInRow;
+        int subImageHeight = image.getHeight() / numSubImagesInRow;
+
+        int numSubImagesInCol = image.getHeight() / subImageHeight;
+
         Image[][] subImages = new Image[numSubImagesInRow][numSubImagesInCol];
-        Color[][] curSubArray = new Color[subImageDim][subImageDim];
 
         for (int row = 0; row < numSubImagesInRow; row++) {
             for (int col = 0; col < numSubImagesInCol; col++) {
+                Color[][] curSubArray = new Color[subImageHeight][subImageWidth];
 
                 // calculate the current sub-image:
-                for (int i = 0; i < subImageDim; i++) {
-                    for (int j = 0; j < subImageDim; j++) {
-                        curSubArray[i][j] = image.getPixel(row + i, col + j);
+                for (int i = 0; i < subImageHeight; i++) {
+                    for (int j = 0; j < subImageWidth; j++) {
+                        curSubArray[i][j] = image.getPixel(row*subImageHeight + i, col*subImageWidth + j);
                     }
                 }
-                Image curSubImage = new Image(curSubArray, subImageDim, subImageDim);
+                Image curSubImage = new Image(curSubArray, subImageWidth, subImageHeight);
                 subImages[row][col] = curSubImage;
             }
         }
@@ -98,13 +102,11 @@ public class ImageProcessor {
         int curHeight = image.getHeight();
         double greyPixelsSum = 0;
         int numPixels = curHeight * curWidth;
-//        double[][] greyPixelArray = new double[curHeight][curWidth];
         for (int i = 0; i < curHeight; i++) {
             for (int j = 0; j < curWidth; j++) {
                 Color curPixel = image.getPixel(i, j);
                 double greyPixel = curPixel.getRed() * 0.2126 +
                         curPixel.getGreen() * 0.7152 + curPixel.getBlue() * 0.0722;
-//                greyPixelArray[i][j] = greyPixel;
                 greyPixelsSum += greyPixel;
             }
         }

@@ -12,8 +12,6 @@ public class AsciiArtAlgorithm {
     private Image image;
     private ImageProcessor imageProcessor;
     private int resolution;
-    // TODO: check with Maayan about the chars array
-    private Map<Character, Double> charMap;
     private SubImgCharMatcher subImgCharMatcher;
 
     public AsciiArtAlgorithm(Image image, int resolution, char[] charset) {
@@ -24,8 +22,14 @@ public class AsciiArtAlgorithm {
     }
 
     public char[][] run() {
+        // Padd:
+        this.image = imageProcessor.extendImage(image);
+        // Divide the image according to given resolution:
         Image[][] subImages = imageProcessor.divideImage(image, resolution);
+        // Create BrightnessMatrix:
         BrightnessMatrix brightnessMatrix = new BrightnessMatrix(subImages);
+
+        // Create AsciiMatrix:
         char[][] newImage = new char[resolution][resolution];
         for (int row = 0; row < resolution; row++) {
             for (int col = 0; col < resolution; col++) {

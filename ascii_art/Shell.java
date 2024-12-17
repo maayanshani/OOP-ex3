@@ -204,7 +204,7 @@ public class Shell {
         Shell shell = new Shell();
 //        shell.testSubImgCharMatcher();
 //        shell.testPadAndExtend();
-//        shell.testAsciiArtAlgorithm();
+        shell.testAsciiArtAlgorithm();
         shell.testHandleChars();
         if (args.length != 1) {
             throw new RuntimeException(WRONG_NUM_ARGS_ERROR);
