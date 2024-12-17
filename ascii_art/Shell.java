@@ -1,10 +1,25 @@
 package ascii_art;
 
+import image.BrightnessMatrix;
 import image.Image;
+import image.ImageProcessor;
 import image_char_matching.SubImgCharMatcher;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import static java.lang.Math.max;
+
+/**
+ * TODO:
+ * - how to save the brightnessMatrix? already in AsciiAlgo.run()
+ * - how to save the padded image? already in AsciiAlgo.run()
+ * - add Exceptions
+ * - check the print format
+ */
 
 public class Shell {
     private static final char ONE = '1';
@@ -25,19 +40,30 @@ public class Shell {
     private static final String CHARS_MESSAGE = "chars"; // Maayan
     private static final String ADD_MESSAGE = "add"; // Maayan
     private static final String REMOVE_MESSAGE = "remove"; // Maayan
-    private static final String RES_MESSAGE = "res"; // Rotem
-    private static final String OUTPUT_MESSAGE = "output"; // Rotem
+    private static final String RES_MESSAGE = "res"; // Rotem - DONE
     private static final String ROUND_MESSAGE = "round"; // Maayan
+    private static final String OUTPUT_MESSAGE = "output"; // Rotem - DONE
     private static final String ASCII_ART_MESSAGE = "asciiArt"; // Rotem
     private static final String WRONG_NUM_ARGS_ERROR =
             "Wrong number of arguments. Should get 1 argument: imagePath.";
     private static final String SPACE_AND_ETC = "(\\s.*)?";
 
+    // fields:
+    private String outputPath;
     private SortedSet<Character> sortedChars;
+    private int resolution;
+    private BrightnessMatrix lastBrightnessMatrix;
+    private Image image;
+    private boolean hasChanged;
 
 
-    public Shell(){
-        sortedChars = new TreeSet<>();
+
+    public  Shell(int resolution) {
+        this.outputPath = null;
+        this.sortedChars = new TreeSet<>();
+        this.resolution = resolution;
+        this.lastBrightnessMatrix = null;
+        this.hasChanged = false;
     }
 
     private void testSubImgCharMatcher() {
@@ -79,31 +105,6 @@ public class Shell {
         }
     }
 
-//    private void testPadAndExtend() {
-//        // ! for the test to work, need to add the image in the "Ex3" folder !
-//        String imagePath = "examples/cat.jpeg";  // Replace with the actual path
-//
-//        try {
-//            // Load the image with the Image class constructor
-//            Image originalImage = new Image(imagePath);
-//            System.out.println("Original image brightness: " + originalImage.getBrightnessGrade());
-//
-//            // Extend the image with ExtendImage
-//            ExtendImage extendedImage = new ExtendImage(originalImage.getPixelArray(), originalImage.getWidth(), originalImage.getHeight());
-//            // TODO: this part is not working because the inherits problem
-//            System.out.println("Extended image brightness: " + extendedImage.getBrightnessGrade());
-//
-//            // Optionally, save the extended image to a file
-//            extendedImage.saveImage("extended_image_output");
-//
-//        } catch (IOException e) {
-//            System.err.println("Error loading image: " + e.getMessage());
-//        } catch (IllegalArgumentException e) {
-//            System.err.println("Invalid argument: " + e.getMessage());
-//        }
-//
-//    }
-
     private void testHandleChars() {
         initializeDefaultChars();
         handleCharsInput();
@@ -113,45 +114,6 @@ public class Shell {
         for (char c = ZERO; c <= NINE; c++) {
             sortedChars.add(c);
         }
-    }
-
-    public void run(String imageName){
-        // todo: create image and implement this
-        try {
-            Image image = new Image("asdfg");
-        } catch (Exception e) {}
-        char[] chars = createBasicCharsSet();
-
-        System.out.println(PREFIX_MESSAGE);
-        while (true) {
-            String input = KeyboardInput.readLine();
-            /**
-             * MAAYAN:
-             * I change to this method because the inputs might be a bit different
-             * see the documentation of each section
-             */
-            handleInput(input);
-//            switch (input) {
-//                case EXIT_MESSAGE:
-//                    handleExit();
-//                    return;
-//                case CHARS_MESSAGE:
-//                    handleChars();
-//                case ADD_MESSAGE:
-//                    handleAdd();
-//                case REMOVE_MESSAGE:
-//                    handleRemove();
-//                case RES_MESSAGE:
-//                    handleRes();
-//                case OUTPUT_MESSAGE:
-//                    handleOutput();
-//                case ROUND_MESSAGE:
-//                    handleRound();
-//                case ASCII_ART_MESSAGE:
-//                    handleAsciiArt();
-//                }
-            System.out.println(PREFIX_MESSAGE);
-            }
     }
 
     private void handleInput(String input) {
@@ -164,16 +126,79 @@ public class Shell {
     }
 
     private void handleAsciiArt() {
+        // TODO: check with Maayan for the 3th parameter (instead of the method createBasicCharsSet)
+        AsciiArtAlgorithm asciiArtAlgorithm =
+                new AsciiArtAlgorithm(this.image, this.resolution, this.createBasicCharsSet());
+        char[][] finalImage = asciiArtAlgorithm.run();
 
+        // TODO: check print format
+        // print to the console:
+        if (this.outputPath==null) {
+            for (int i = 0; i < finalImage.length; i++) {
+                System.out.println(finalImage[i]);
+            }
+        }
+        // print to a file:
+        else {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
+                for (int i = 0; i < finalImage.length; i++) {
+                    writer.write(finalImage[i]);
+                    writer.newLine();
+                }
+            } catch (IOException e) {
+                // TODO: deal with exceptions
+                e.printStackTrace();
+            }
+        }
     }
 
     private void handleRound() {
     }
 
-    private void handleOutput() {
+    private void handleOutput(String[] commandTokens) {
+        switch (commandTokens[1]){
+            case "html":
+                this.outputPath = "out.html";
+                return;
+            case "console":
+                this.outputPath = null;
+                return;
+            default:
+                System.out.println("Did not change output method due to incorrect format.");
+        }
+
     }
 
-    private void handleRes() {
+    private void handleRes(String[] commandTokens) {
+        int maxRes = image.getWidth();
+        int minRes = Math.max(1, image.getWidth()/image.getHeight());
+        switch (commandTokens[1]){
+            case "":
+                break;
+            case "up":
+                if (this.resolution*2 <= maxRes) {
+                    this.resolution *= 2;
+                    break;
+                }
+                else {
+                    System.out.println("Did not change resolution due to exceeding boundaries.");
+                    return;
+                }
+            case "down":
+                if (this.resolution/2 >= minRes) {
+                    this.resolution /= 2;
+                    break;
+                }
+                else {
+                    System.out.println("Did not change resolution due to exceeding boundaries.");
+                    return;
+                }
+            default:
+                System.out.println("Did not change resolution due to incorrect format.");
+                return;
+        }
+        System.out.println("Resolution set to " + this.resolution + ".");
+        // TODO: i dont get 2.6.5
     }
 
     private void handleRemove() {
@@ -198,13 +223,55 @@ public class Shell {
         return new char[] {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE};
     }
 
+    public void run(String imageName){
+        try {
+            this.image = new Image(imageName);
+        }
+        catch (Exception e) {}
+
+        // TODO: how can i save the padded image? how can i save the brightness image?
+
+
+        char[] chars = createBasicCharsSet();
+
+        System.out.println(PREFIX_MESSAGE);
+        while (true) {
+            String input = KeyboardInput.readLine();
+            String[] commandTokens = input.split(" ");
+
+//            handleInput(input);
+            switch (commandTokens[0]) {
+                case EXIT_MESSAGE:
+                    handleExit();
+                    return;
+                case CHARS_MESSAGE:
+                    handleCharsInput();
+                case ADD_MESSAGE:
+                    handleAdd();
+                case REMOVE_MESSAGE:
+                    handleRemove();
+                case RES_MESSAGE:
+                    handleRes(commandTokens);
+                case OUTPUT_MESSAGE:
+                    handleOutput();
+                case ROUND_MESSAGE:
+                    handleRound();
+                case ASCII_ART_MESSAGE:
+                    handleAsciiArt();
+                }
+            System.out.println(PREFIX_MESSAGE);
+
+        }
+    }
+
+
 
     public static void main(String[] args) {
         // Create an instance of Shell and call the test method
         Shell shell = new Shell();
 //        shell.testSubImgCharMatcher();
 //        shell.testPadAndExtend();
-        shell.testAsciiArtAlgorithm();
+//        shell.testAsciiArtAlgorithm();
         shell.testHandleChars();
         if (args.length != 1) {
             throw new RuntimeException(WRONG_NUM_ARGS_ERROR);

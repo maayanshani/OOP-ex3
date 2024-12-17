@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class AsciiArtAlgorithm {
     private Image image;
-    private ImageProcessor imageProcessor;
-    private int resolution;
-    private SubImgCharMatcher subImgCharMatcher;
+    private final ImageProcessor imageProcessor;
+    private final int resolution;
+    private final SubImgCharMatcher subImgCharMatcher;
 
     public AsciiArtAlgorithm(Image image, int resolution, char[] charset) {
         this.image = image;
