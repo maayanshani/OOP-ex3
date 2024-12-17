@@ -17,6 +17,9 @@ public class Shell {
     private static final char EIGHT = '8';
     private static final char NINE = '9';
     private static final char ZERO = '0';
+    
+    private static final int DEFAULT_RESOLUTION = 2;
+    
     private static final String PREFIX_MESSAGE = ">>> ";
     private static final String EXIT_MESSAGE = "exit"; // Maayan
     private static final String CHARS_MESSAGE = "chars"; // Maayan
