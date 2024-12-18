@@ -6,6 +6,7 @@ public class BrightnessMatrix {
 
     public BrightnessMatrix(Image[][] subImages) {
         ImageProcessor imageProcessor = new ImageProcessor();
+        // TODO: EXCEPTION
         if (subImages!=null) {
             int numRow = subImages.length;
             int numCols = subImages[0].length;

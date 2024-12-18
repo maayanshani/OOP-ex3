@@ -10,8 +10,8 @@ public class ImageProcessor {
 
     }
 
-    // TODO ROTEM: add exception and catch the exception in shell
     // TODO: Add to the README
+    // TODO: EXCEPTION
     public Image extendImage(Image image) throws IllegalArgumentException {
         int originalWidth = image.getWidth();
         int originalHeight = image.getHeight();
@@ -43,7 +43,7 @@ public class ImageProcessor {
     private int calculateSidePixels(int originalDim, int extendedDim) throws IllegalArgumentException {
         // we can assume the dimensions are always even
         if (extendedDim%2!=0 || originalDim%2!=0) {
-            // TODO: if not, trow exception:
+            // TODO: EXCEPTION
         }
         return (extendedDim - originalDim) / 2;
     }
@@ -57,6 +57,7 @@ public class ImageProcessor {
 
     private static int nextPowerOfTwo(int n) throws IllegalArgumentException {
         if (n <= 0) {
+            // TODO: EXCEPTION
             throw new IllegalArgumentException("Dimension must be positive.");
         }
         n--;
@@ -71,6 +72,8 @@ public class ImageProcessor {
 
     public Image[][] divideImage(Image image, int numSubImagesInRow)  {
         // TODO: what is "valid resolution"? add Exceptions
+        // TODO: EXCEPTION
+
         // Calculate sub-image dimensions
         int subImageWidth = image.getWidth() / numSubImagesInRow;
         int subImageHeight = image.getHeight() / numSubImagesInRow;
@@ -102,6 +105,9 @@ public class ImageProcessor {
         int curHeight = image.getHeight();
         double greyPixelsSum = 0;
         int numPixels = curHeight * curWidth;
+        // if its zero
+        // TODO: EXCEPTION
+
         for (int i = 0; i < curHeight; i++) {
             for (int j = 0; j < curWidth; j++) {
                 Color curPixel = image.getPixel(i, j);
