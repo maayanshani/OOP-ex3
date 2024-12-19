@@ -1,16 +1,19 @@
 package image;
 
-import ascii_art.exceptions.ImageProcessExceptions;
+import ascii_art.exceptions.ImageProcessorExceptions;
+
+// TODO: add documentation
+
 
 public class BrightnessMatrix {
     private static final String NULL_EXCEPTION = "subImage is a null pointer";
     private final double[][] doubleImage;
 
 
-    public BrightnessMatrix(Image[][] subImages) {
+    public BrightnessMatrix(Image[][] subImages) throws ImageProcessorExceptions {
         ImageProcessor imageProcessor = new ImageProcessor();
         if (subImages == null) {
-            throw new ImageProcessExceptions(NULL_EXCEPTION);
+            throw new ImageProcessorExceptions(NULL_EXCEPTION);
         }
 
         int numRow = subImages.length;

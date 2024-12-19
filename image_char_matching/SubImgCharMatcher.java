@@ -1,6 +1,7 @@
 package image_char_matching;
 
-import ascii_art.exceptions.ImageProcessExceptions;
+import ascii_art.exceptions.CharMatcherExceptions;
+import ascii_art.exceptions.InputExceptions;
 
 import java.util.*;
 
@@ -16,13 +17,22 @@ public class SubImgCharMatcher {
 
     private static final double MIN_BRIGTHNESS = 0;
     private static final double MAX_BRIGHTNESS = 1;
-    private static final String ILLEGEAL_BRIGHTNESS_VALUE_MESSAGE =
+    private static final String ILLEGAL_BRIGHTNESS_VALUE_MESSAGE =
             "Brightness value must be between 0 and 1.";
-    private final int NUM_CELLS = 16 * 16; // Total cells in a boolean representation of a character
+    private static final int NUM_CELLS = 16 * 16; // Total cells in a boolean representation of a character
+    private static final String ABS = "abs";
+    private static final String UP = "up";
+    private static final String DOWN = "down";
+    private static final String ROUND_INCORRECT_FORMAT_MESSAGE =
+            "Did not change rounding method due to incorrect format.";
+    private static final String WRONG_METHOD_EXCEPTION = "wrong round method";
+
     private Map<Character, Double> charMap; // Stores raw brightness values for each character
     private Map<Character, Double> brightnessCharMap; // Stores normalized brightness values
     private double minValue; // Minimum brightness value
     private double maxValue; // Maximum brightness value
+    private String roundMethod;
+
     /**
      * Constructor to initialize the character matcher with a set of characters.
      * @param charset Array of characters to be added to the matcher.
@@ -30,13 +40,13 @@ public class SubImgCharMatcher {
     public SubImgCharMatcher(char[] charset) {
         this.charMap = new HashMap<>();
         this.brightnessCharMap = new HashMap<>();
+        this.roundMethod = ABS;
 
         minValue = Double.POSITIVE_INFINITY;
         maxValue = Double.NEGATIVE_INFINITY;
 
         for (char c : charset) {
             double value = 0;
-            System.out.print(c + " ");
             value = getCharBrightnessValue(c);
             updateMin(value);
             updateMax(value);
@@ -71,9 +81,9 @@ public class SubImgCharMatcher {
      * @param brightness The target brightness value.
      * @return The character closest to the given brightness.
      */
-    public char getCharByImageBrightness(double brightness) throws ImageProcessExceptions {
+    public char getCharByImageBrightness(double brightness) throws CharMatcherExceptions {
         if (brightness < MIN_BRIGTHNESS || brightness > MAX_BRIGHTNESS) {
-            throw new ImageProcessExceptions(ILLEGEAL_BRIGHTNESS_VALUE_MESSAGE);
+            throw new CharMatcherExceptions(ILLEGAL_BRIGHTNESS_VALUE_MESSAGE);
         }
 
         char closestChar = '\0';
@@ -81,8 +91,9 @@ public class SubImgCharMatcher {
 
         for (Map.Entry<Character, Double> entry : brightnessCharMap.entrySet()) {
             Character currentChar = entry.getKey();
-            Double charBrightness = entry.getValue();
-            double distance = Math.abs(charBrightness - brightness);
+            Double currentCharBrightness = entry.getValue();
+//            double distance = Math.abs(charBrightness - brightness);
+            double distance = calculateDistance(brightness, currentCharBrightness);
 
             if (distance < closestDistance ||
                     (distance == closestDistance && currentChar < closestChar)) {
@@ -91,6 +102,65 @@ public class SubImgCharMatcher {
             }
         }
         return closestChar;
+    }
+
+    /**
+     * Calculates the distance between the provided brightness and the character brightness
+     * using the specified rounding method.
+     *
+     * @param providedBrightness The brightness value provided by the user. It must be a double
+     *                           between 0 and 1 inclusive.
+     * @param currentCharBrightness     The brightness value associated with a character.
+     * @return The calculated distance as a double.
+     *
+     * @throws CharMatcherExceptions if the rounding method is invalid or not recognized.
+     *
+     * Rounding methods:
+     * - ABS: No rounding is applied. The absolute difference is returned.
+     * - UP: The providedBrightness is rounded up using Math.ceil before calculating the difference.
+     * - DOWN: The providedBrightness is rounded down using Math.floor before calculating the difference.
+     */
+    private double calculateDistance(double providedBrightness, double currentCharBrightness) {
+        switch (this.roundMethod) {
+            case ABS:
+                return Math.abs(currentCharBrightness - providedBrightness);
+            case UP:
+                double upBrightness = Math.ceil(providedBrightness);
+                return Math.abs(currentCharBrightness - upBrightness);
+            case DOWN:
+                double floorBrightness = Math.floor(providedBrightness);
+                return Math.abs(currentCharBrightness - floorBrightness);
+            default:
+                throw new CharMatcherExceptions(WRONG_METHOD_EXCEPTION);
+        }
+    }
+
+//    todo: add to readme
+    /**
+     * Sets the rounding method for calculations.
+     *
+     * @param roundMethod The rounding method to set. It must be one of the following:
+     *                    - "ABS": Absolute rounding method.
+     *                    - "UP": Round up method.
+     *                    - "DOWN": Round down method.
+     *
+     * @throws InputExceptions if the provided roundMethod is invalid or not recognized.
+     *         The exception message will be: ROUND_INCORRECT_FORMAT_MESSAGE.
+     */
+    public void setRoundMethod(String roundMethod) throws InputExceptions {
+        switch (roundMethod) {
+            case ABS:
+                this.roundMethod = ABS;
+                return;
+            case UP:
+                this.roundMethod = UP;
+                return;
+            case DOWN:
+                this.roundMethod = DOWN;
+                return;
+            default:
+                throw new InputExceptions(ROUND_INCORRECT_FORMAT_MESSAGE);
+        }
     }
 
     /**
@@ -123,7 +193,6 @@ public class SubImgCharMatcher {
                 }
             }
         }
-        System.out.println(counter);
         return counter;
     }
 
@@ -134,7 +203,6 @@ public class SubImgCharMatcher {
         for (Map.Entry<Character, Double> entry : charMap.entrySet()) {
             double normalizedBrightness = (entry.getValue() - minValue) / (maxValue - minValue);
             brightnessCharMap.put(entry.getKey(), normalizedBrightness);
-            System.out.println(entry.getKey() + "   " + normalizedBrightness);
         }
     }
 

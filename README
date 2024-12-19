@@ -1,1 +1,6 @@
 # OOP-ex3
+
+We added the setRoundMethod method to the API (public) to give users the ability to control how brightness
+calculations are rounded during the ASCII art generation process. Making this method public ensures
+flexibility, allowing users to dynamically change the rounding behavior (ABS, UP, or DOWN) based on their
+preferences or specific use cases without modifying the underlying code
