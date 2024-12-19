@@ -15,10 +15,8 @@ public class ImageProcessor {
     private static final int MAX_RGB = 255;
 
     public ImageProcessor() {
-
     }
 
-    // TODO: Add to the README
     public Image extendImage(Image image) throws ImageProcessorExceptions {
         if (image == null) {
             throw new ImageProcessorExceptions(NULL_EXCEPTION);

@@ -1,6 +1,24 @@
-# OOP-ex3
+maayanshani,rotem.garti
+319111886,207869520
 
+## Answers to Questions
+1. the connections between the class - ROTEM
+
+2. Collections:
+- AsciiArtAlgorithm  - ArrayList (BrightnessMatrices) - ROTEM
+- SubImgMatcher - Hashtable(Map) 1 - MAAYAN
+- SubImgMatcher - Hashtable(Map) 2 - MAAYAN
+- shell - sortedSet - MAAYAN
+
+3. Exceptions - ROTEM
+- User input errors:
+- Print error meseges:
+
+4. SubImgCharMatcher API changes: - MAAYAN
 We added the setRoundMethod method to the API (public) to give users the ability to control how brightness
 calculations are rounded during the ASCII art generation process. Making this method public ensures
 flexibility, allowing users to dynamically change the rounding behavior (ABS, UP, or DOWN) based on their
 preferences or specific use cases without modifying the underlying code
+
+5. API changes in the supplied files:
+ we didn't change them

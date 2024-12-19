@@ -7,7 +7,6 @@ import image.ImageProcessor;
 import image_char_matching.SubImgCharMatcher;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 // TODO: add documentation
 

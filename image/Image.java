@@ -6,15 +6,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-/* TODO:
-1. add white pixels
-2. divide to sub-images
-3. calculate the image brightness
-
- */
-
-
-
 /**
  * A package-private class of the package image.
  * @author Dan Nirel
@@ -56,11 +47,6 @@ public class Image {
 
     public Color getPixel(int x, int y) {
         return pixelArray[x][y];
-    }
-
-    // TODO: delete this method, only for tests
-    public Color[][] getPixelArray() {
-        return pixelArray;
     }
 
     public void saveImage(String fileName){
