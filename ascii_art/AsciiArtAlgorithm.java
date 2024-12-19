@@ -16,11 +16,12 @@ public class AsciiArtAlgorithm {
     private final SubImgCharMatcher subImgCharMatcher;
     private final ArrayList<BrightnessMatrix> brightnessMatrices;
 
-    public AsciiArtAlgorithm(Image image, int resolution, char[] charset, ArrayList<BrightnessMatrix> brightnessMatrices) {
+    public AsciiArtAlgorithm(Image image, int resolution, SubImgCharMatcher subImgCharMatcher,
+                             ArrayList<BrightnessMatrix> brightnessMatrices) {
         this.image = image;
         this.imageProcessor = new ImageProcessor();
         this.resolution = resolution;
-        this.subImgCharMatcher = new SubImgCharMatcher(charset);
+        this.subImgCharMatcher = subImgCharMatcher;
         this.brightnessMatrices = brightnessMatrices;
     }
 

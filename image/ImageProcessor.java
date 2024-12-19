@@ -116,7 +116,7 @@ public class ImageProcessor {
                 greyPixelsSum += greyPixel;
             }
         }
-        return greyPixelsSum/numPixels/MAX_RGB;
+        return (greyPixelsSum/numPixels)/MAX_RGB;
 
     }
 

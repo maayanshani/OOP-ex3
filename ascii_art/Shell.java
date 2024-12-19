@@ -2,7 +2,6 @@ package ascii_art;
 
 import ascii_art.exceptions.AsciiArtExceptions;
 import ascii_art.exceptions.InputExceptions;
-import ascii_art.exceptions.OutputExceptions;
 import image.BrightnessMatrix;
 import image.Image;
 import image.ImageProcessor;
@@ -25,32 +24,22 @@ import static java.lang.Math.max;
 
 
 public class Shell {
-    // TODO MAAYAN: switch to range instead
-    private static final char ONE = '1';
-    private static final char TWO = '2';
-    private static final char THREE = '3';
-    private static final char FOUR = '4';
-    private static final char FIVE = '5';
-    private static final char SIX = '6';
-    private static final char SEVEN = '7';
-    private static final char EIGHT = '8';
-    private static final char NINE = '9';
-    private static final char ZERO = '0';
-    
+    private static final char DEFAULT_CHARS_START = '0';
+    private static final char DEFAULT_CHAR_END = '9';
+
     private static final int DEFAULT_RESOLUTION = 2;
     
     private static final String PREFIX_MESSAGE = ">>> ";
     private static final String EXIT_MESSAGE = "exit"; // Rotem - Done
-    private static final String CHARS_MESSAGE = "chars"; // Rotem - DONE
+    private static final String CHARS_MESSAGE = "chars"; // Rotem - Done
     private static final String ADD_MESSAGE = "add"; // Maayan
-    private static final String REMOVE_MESSAGE = "remove"; // Maayan
+    private static final String REMOVE_MESSAGE = "remove"; // Maayan - Done
     private static final String RES_MESSAGE = "res"; // Rotem - DONE
     private static final String ROUND_MESSAGE = "round"; // Maayan
-    private static final String OUTPUT_MESSAGE = "output"; // Rotem - DONE
-    private static final String ASCII_ART_MESSAGE = "asciiArt"; // Rotem
+    private static final String OUTPUT_MESSAGE = "output"; // Rotem - Done
+    private static final String ASCII_ART_MESSAGE = "asciiArt"; // Rotem - Done
     private static final String WRONG_NUM_ARGS_ERROR =
             "Wrong number of arguments. Should get 1 argument: imagePath.";
-    private static final String SPACE_AND_ETC = "(\\s.*)?";
     private static final int ARGS_NUM = 1;
 
     // Exceptions messages:
@@ -62,6 +51,10 @@ public class Shell {
     private static final String RES_INCORRECT_FORMAT_MESSAGE = "Did not change resolution due to incorrect format.";
     private static final String ADD_INVALID_COMMAND_MESSAGE = "Did not add due to incorrect format.";
     private static final String REMOVE_INVALID_COMMAND_MESSAGE = "Did not remove due to incorrect format.";
+    private static final int ALL_CHARS_LEN = 95;
+    private static final int SPACE_CHAR = 32;
+    private static final int RES_FACTOR_DOWN = 2;
+    private static final int RES_FACTOR_UP = 2;
 
     // fields:
     private Memento memento;
@@ -72,7 +65,7 @@ public class Shell {
     private SortedSet<Character> sortedChars;
     private int resolution;
     private Image image;
-
+    private SubImgCharMatcher subImgCharMatcher;
 
 
     public  Shell() {
@@ -80,6 +73,8 @@ public class Shell {
         this.sortedChars = new TreeSet<>();
         this.resolution = DEFAULT_RESOLUTION;
         this.brightnessMatrices = new ArrayList<BrightnessMatrix>();
+        initializeDefaultChars();
+        this.subImgCharMatcher = new SubImgCharMatcher(sortedSetToArray(sortedChars));
     }
 
     private void testSubImgCharMatcher() {
@@ -105,21 +100,21 @@ public class Shell {
         }
     }
 
-    private void testAsciiArtAlgorithm(){
-        System.out.println("testAsciiArtAlgorithm");
-        try {
-            Image image = new Image("examples/board.jpeg");
-            AsciiArtAlgorithm algo = new AsciiArtAlgorithm(image, DEFAULT_RESOLUTION, new char[]{'m', 'o'}, new ArrayList<>());
-            char[][] newPhoto = algo.run();
-            for (char[] row: newPhoto){
-                for (char c: row) {
-                    System.out.println(c);
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("error: "+ e);
-        }
-    }
+//    private void testAsciiArtAlgorithm(){
+//        System.out.println("testAsciiArtAlgorithm");
+//        try {
+//            Image image = new Image("examples/board.jpeg");
+//            AsciiArtAlgorithm algo = new AsciiArtAlgorithm(image, DEFAULT_RESOLUTION, new char[]{'m', 'o'}, new ArrayList<>());
+//            char[][] newPhoto = algo.run();
+//            for (char[] row: newPhoto){
+//                for (char c: row) {
+//                    System.out.println(c);
+//                }
+//            }
+//        } catch (Exception e) {
+//            System.out.println("error: "+ e);
+//        }
+//    }
 
     private void testHandleChars() {
         initializeDefaultChars();
@@ -127,20 +122,11 @@ public class Shell {
     }
 
     private void initializeDefaultChars() {
-        for (char c = ZERO; c <= NINE; c++) {
+        for (char c = DEFAULT_CHARS_START; c <= DEFAULT_CHAR_END; c++) {
             sortedChars.add(c);
         }
     }
-
-    private void handleInput(String input) {
-        if (input.equals(EXIT_MESSAGE)) {
-            return;
-        } else if (input.matches(CHARS_MESSAGE + SPACE_AND_ETC)) {
-            handleCharsInput();
-        }
-
-    }
-
+    
     private void printAsciiArt(char[][] finalImage) throws IOException {
         // TODO: check print format
         // print to the console:
@@ -179,10 +165,11 @@ public class Shell {
             memento = new Memento(newMatrix, this.resolution, this.image);
         }
 
-        char[] charsArray = setToArray(this.sortedChars);
+        char[] charsArray = sortedSetToArray(this.sortedChars);
 
         AsciiArtAlgorithm asciiArtAlgorithm =
-                new AsciiArtAlgorithm(this.image, this.resolution, charsArray, this.brightnessMatrices);
+                new AsciiArtAlgorithm(this.image, this.resolution, this.subImgCharMatcher,
+                        this.brightnessMatrices);
         char[][] finalImage = asciiArtAlgorithm.run();
 
         printAsciiArt(finalImage);
@@ -199,7 +186,7 @@ public class Shell {
         return new BrightnessMatrix(subImages);
     }
 
-    private char[] setToArray(SortedSet<Character> chars) {
+    private char[] sortedSetToArray(SortedSet<Character> chars) {
         char[] charsArray = new char[chars.size()];
         int i = 0;
         for (Character c : chars) {
@@ -236,18 +223,18 @@ public class Shell {
         int maxRes = extendedWidth;
         int minRes = Math.max(1, extendedWidth/extendedHeight);
 
-        if (commandTokens.length >= 2) {
+        if (commandTokens.length > 1) {
             switch (commandTokens[1]) {
                 case "up":
-                    if (this.resolution * 2 <= maxRes) {
-                        this.resolution *= 2;
+                    if (this.resolution * RES_FACTOR_UP <= maxRes) {
+                        this.resolution *= RES_FACTOR_UP;
                         break;
                     } else {
                         throw new InputExceptions(INVALID_RES_MESSAGE);
                     }
                 case "down":
-                    if (this.resolution / 2 >= minRes) {
-                        this.resolution /= 2;
+                    if (this.resolution / RES_FACTOR_DOWN >= minRes) {
+                        this.resolution /= RES_FACTOR_DOWN;
                         break;
                     } else {
                         throw new InputExceptions(INVALID_RES_MESSAGE);
@@ -261,8 +248,6 @@ public class Shell {
         // TODO: i dont get 2.6.5
     }
 
-    private void handleRemove() {
-    }
 
     private void handleCharsInput() {
         for (char c : sortedChars) {
@@ -278,7 +263,7 @@ public class Shell {
 
             switch (commandTokens[1]) {
                 case "all":
-                    charsArray = null; // `null` indicates "all"
+                    charsArray = createAllCharsArray(); // `null` indicates "all"
                     break;
 
                 case "space":
@@ -332,39 +317,35 @@ public class Shell {
 
     }
 
-    private void addToChars(char[] chars) {
-        if (chars == null) {
-            // add all chars from ' ' to '~' (32-126)
-            chars = createCharArr(" -~");
+    private char[] createAllCharsArray() {
+        char[] asciiArray = new char[ALL_CHARS_LEN]; // 126 - 32 + 1 = 95 characters
+        for (int i = 0; i < asciiArray.length; i++) {
+            asciiArray[i] = (char)(i + SPACE_CHAR);
         }
-        for (char c : chars) {
-            // TODO: Maayan
-        }
+        return asciiArray;
+    }
 
+    private void addToChars(char[] chars) {
+        for (char c : chars) {
+            this.sortedChars.add(c);
+            this.subImgCharMatcher.addChar(c);
+        }
     }
 
 
     private void removeFromChars(char[] chars) {
-        if (chars == null) {
-            // remove all chars from ' ' to '~' (32-126)
-            chars = createCharArr(" -~");
-        }
+
         for (char c : chars) {
-            // TODO: Maayan
+            sortedChars.remove(c);
+            this.subImgCharMatcher.removeChar(c);
         }
-    }
-
-
-    private char[] createBasicCharsSet() {
-        // TODO MAAYAN: maybe change to array<>
-        return new char[] {ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE};
     }
 
     public void run(String imageName){
         try {
             this.image = new Image(imageName);
         } catch (IOException e) {
-            System.out.println(FAILS_TO_OPEN_IMAGE_MESSAGE);
+            System.out.println(e + FAILS_TO_OPEN_IMAGE_MESSAGE);
         }
 
         System.out.println(PREFIX_MESSAGE);
@@ -426,8 +407,7 @@ public class Shell {
 //        shell.testSubImgCharMatcher();
 //        shell.testPadAndExtend();
 //        shell.testAsciiArtAlgorithm();
-        // TODO MAAYAN: should be out of the test
-        shell.testHandleChars();
+//        shell.testHandleChars();
         if (args.length != ARGS_NUM) {
             throw new AsciiArtExceptions(WRONG_NUM_ARGS_ERROR);
         }

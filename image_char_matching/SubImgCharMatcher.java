@@ -1,5 +1,7 @@
 package image_char_matching;
 
+import ascii_art.exceptions.ImageProcessExceptions;
+
 import java.util.*;
 
 
@@ -34,6 +36,7 @@ public class SubImgCharMatcher {
 
         for (char c : charset) {
             double value = 0;
+            System.out.print(c + " ");
             value = getCharBrightnessValue(c);
             updateMin(value);
             updateMax(value);
@@ -68,9 +71,9 @@ public class SubImgCharMatcher {
      * @param brightness The target brightness value.
      * @return The character closest to the given brightness.
      */
-    public char getCharByImageBrightness(double brightness) throws IllegalArgumentException {
+    public char getCharByImageBrightness(double brightness) throws ImageProcessExceptions {
         if (brightness < MIN_BRIGTHNESS || brightness > MAX_BRIGHTNESS) {
-            throw new IllegalArgumentException(ILLEGEAL_BRIGHTNESS_VALUE_MESSAGE);
+            throw new ImageProcessExceptions(ILLEGEAL_BRIGHTNESS_VALUE_MESSAGE);
         }
 
         char closestChar = '\0';
@@ -120,6 +123,7 @@ public class SubImgCharMatcher {
                 }
             }
         }
+        System.out.println(counter);
         return counter;
     }
 

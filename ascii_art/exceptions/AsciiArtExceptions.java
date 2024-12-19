@@ -3,7 +3,7 @@ package ascii_art.exceptions;
 /** Exceptions:
  * - AsciiAlgo:
  *      V wrong num of args[] in main - WRONG_NUM_ARGS_ERROR, exit the program
- *      - cant open Image - FAILS_TO_OPEN_IMAGE_MESSAGE, exit the program - TODO
+ *      V cant open Image - FAILS_TO_OPEN_IMAGE_MESSAGE, exit the program
  *      V wrong input (commands):
  *          V general (command not in the 8) - INVALID_COMMAND_MESSAGE
  *          V output (incorrect format) - OUTPUT_INCORRECT_FORMAT_MESSAGE
@@ -19,6 +19,7 @@ package ascii_art.exceptions;
  *      - ImageProcessor.nextPowerOfTwo: if got negative dimensions
  *      - ImageProcessor.divideImage: is not valid res
  *      - ImageProcessor.imageBrightness: width or height are 0
+ *      - subImgCharMatcher.getCharByImageBrightness: if brightness <0 or brightness > 1
  *
  */
 
