@@ -2,17 +2,51 @@ maayanshani,rotem.garti
 319111886,207869520
 
 ## Answers to Questions
-1. the connections between the class - ROTEM
+1. the connections between the class -
+- AsciiArtAlgorithm -
+A class in the ascii_art package responsible for running the AsciiArt art algorithm.
+Utilizes composition with classes from the image package and the image_char_matching package.
+
+- Shell -
+The main class who runs the program.
+Handle the user input, executes the AsciiArtAlgo using composition, and manage the output.
+
+- Memento -
+An inner class of Shell.
+Responsible for saving the last BrightnessMatrix to avoid "expensive" recalculating when not needed.
+Using composition with the BrightnessMatrix class.
+
+- BrightnessMatrix -
+Responsible for creating a matrix of double values that represent the brightness levels of
+the pixels in the asciiArt image in the requested resolution.
+
+- Image -
+Represent an image as a matrix of Colors.
+Handles operations and features related to this matrix.
+
+- ImageProcessor -
+A utility class for processing images.
+Includes functionalities like padding the image with white pixels and other operations.
+
+- SubImgCharMatcher -
+A utility class responsible for mapping characters to brightness values.
 
 2. Collections:
-- AsciiArtAlgorithm  - ArrayList (BrightnessMatrices) - ROTEM
+- AsciiArtAlgorithm  - ArrayList (BrightnessMatrices) - we used this data structure because we needed a
+structure with efficient "add" and "get", while we only needed the last object in the array - in this case
+both actions available in O(1).
 - SubImgMatcher - Hashtable(Map) 1 - MAAYAN
 - SubImgMatcher - Hashtable(Map) 2 - MAAYAN
 - shell - sortedSet - MAAYAN
 
 3. Exceptions - ROTEM
 - User input errors:
-- Print error meseges:
+We create InputExceptions who inheritance RunTimeExceptions and get a message parameter.
+When the input was invalid we threw this exceptions and catch them in the "run" methods, where we printed the
+relevant message and return back to getting an input from the user.
+We also added ImageProcessor and SubImgCharMatcher exceptions, which are only relevant to the programmer
+and help finding the problem at the first place possible. We threw those exceptions on the relevant places
+and catch them in the "run" method, and exit the program there, making sure that wrong actions aren't being made.
 
 4. SubImgCharMatcher API changes: - MAAYAN
 We added the setRoundMethod method to the API (public) to give users the ability to control how brightness
