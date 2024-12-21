@@ -1,9 +1,6 @@
 package ascii_art;
 
-import ascii_art.exceptions.AsciiArtExceptions;
-import ascii_art.exceptions.CharMatcherExceptions;
-import ascii_art.exceptions.ImageProcessorExceptions;
-import ascii_art.exceptions.InputExceptions;
+import ascii_art.exceptions.*;
 import ascii_output.ConsoleAsciiOutput;
 import ascii_output.HtmlAsciiOutput;
 import image.BrightnessMatrix;
@@ -18,13 +15,36 @@ import java.util.ArrayList;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/**
- * TODO:
- * - add Exceptions
- * - check the print format
- * - add round method
- */
 
+/**
+ * The Shell class provides a command-line interface for creating and manipulating ASCII art from images.
+ * It handles user input, image processing, character set management, and output generation.
+ *
+ * The class supports the following commands:
+ * - exit: Exits the program
+ * - chars: Displays current character set
+ * - add [chars]: Adds characters to the set (single char, range a-z, 'all', or 'space')
+ * - remove [chars]: Removes characters from the set
+ * - res [up/down]: Adjusts resolution
+ * - output [console/html]: Sets output method
+ * - round: Sets rounding method for brightness calculations
+ * - asciiArt: Generates and displays ASCII art
+ *
+ * Features:
+ * - Caches brightness matrices using the Memento pattern for performance
+ * - Supports both console and HTML output formats
+ * - Manages a sorted set of characters for ASCII art generation
+ * - Provides dynamic resolution control with bounds checking
+ * - Implements comprehensive error handling
+ *
+ * Usage example:
+ * Shell shell = new Shell();
+ * shell.run("path/to/image.jpg");
+ *
+ * @see Image
+ * @see BrightnessMatrix
+ * @see SubImgCharMatcher
+ */
 public class Shell {
     private static final char DEFAULT_CHARS_START = '0';
     private static final char DEFAULT_CHAR_END = '9';
@@ -65,6 +85,9 @@ public class Shell {
     private static final String IMAGE_PROCESSOR_ERROR_MESSAGE = "Error in processing the image: ";
     private static final String CHAR_MATCHER_ERROR_MESSAGE = "Error in SubImgCharMatcher: ";
     private static final String FILE_FONT_NAME = "New Courier";
+    private static final int FAILURE = 1;
+    private static final String WRONG_SIZE_SET_ERROR = "Did not execute. Charset is too small.";
+    private static final String CHAR_FORMAT_REGEX = ".-.";
 
     // fields:
     /**
@@ -238,8 +261,7 @@ public class Shell {
      * @throws InputExceptions if the input format is invalid or cannot be parsed into a valid range.
      */
     private char[] createCharArr(String input) throws InputExceptions {
-        // TODO: check about " -~"
-        if (!input.matches(".-.")) {
+        if (!input.matches(CHAR_FORMAT_REGEX)) {
             throw new InputExceptions(ADD_INVALID_COMMAND_MESSAGE);
         }
 
@@ -376,16 +398,16 @@ public class Shell {
      *
      * @throws IOException if writing to a file fails.
      */
-    private void handleAsciiArt() throws IOException {
-        // TODO: delete the prints
+    private void handleAsciiArt() throws IOException, CharSetExceptions {
+        if (sortedChars.size() <= 1) {
+            throw new CharSetExceptions(WRONG_SIZE_SET_ERROR);
+        }
         // check if BrightnessMatrix needs to be calculated:
         if (this.memento != null && memento.wasCalculated(this.resolution, this.image)) {
-            System.out.println("Using cached brightness matrix.");
             this.brightnessMatrices.add(memento.getMatrix());
 
         } else {
             // No matching cached matrix; create a new one and save it in the memento
-            System.out.println("Calculating new brightness matrix.");
             BrightnessMatrix newMatrix = createBrightnessMatrix();
             this.brightnessMatrices.add(newMatrix);
             this.memento = new Memento(newMatrix, this.resolution, this.image);
@@ -453,17 +475,12 @@ public class Shell {
                         handleRound(commandTokens);
                         break;
                     case ASCII_ART_MESSAGE:
-                        try {
-                            handleAsciiArt();
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                            System.exit(1);
-                        }
+                        handleAsciiArt();
                         break;
                     default:
                         throw new InputExceptions(INVALID_COMMAND_MESSAGE);
                 }
-            } catch (InputExceptions e) {
+            } catch (InputExceptions | CharSetExceptions e) {
                 System.out.println(e.getMessage());
                 System.out.println(PREFIX_MESSAGE);
                 continue;
@@ -472,7 +489,13 @@ public class Shell {
                 System.exit(1);
             } catch (CharMatcherExceptions e) {
                 System.out.println(CHAR_MATCHER_ERROR_MESSAGE + e.getMessage());
-                System.exit(1);
+                System.exit(FAILURE);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                System.exit(FAILURE);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.exit(FAILURE);
             }
 
             System.out.println(PREFIX_MESSAGE);

@@ -35,11 +35,28 @@ A utility class responsible for mapping characters to brightness values.
 - AsciiArtAlgorithm  - ArrayList (BrightnessMatrices) - we used this data structure because we needed a
 structure with efficient "add" and "get", while we only needed the last object in the array - in this case
 both actions available in O(1).
-- SubImgMatcher - Hashtable(Map) 1 - MAAYAN
-- SubImgMatcher - Hashtable(Map) 2 - MAAYAN
-- shell - sortedSet - MAAYAN
 
-3. Exceptions - ROTEM
+- SubImgMatcher - Hashtable(Map) 1 - We used this data structure to store the unnormalized brightness values
+of characters because it allows O(1) lookup for checking if a key exists. This efficiency is crucial for
+matching brightness values to characters during ASCII art generation.
+
+- SubImgMatcher - Hashtable(Map) 2 - This data structure was chosen to store normalized brightness values of
+the characters. When the minValue or maxValue changes, we clear and rebuild the map. Given that this task is
+limited to ASCII characters (a maximum of 95 keys), retrieval is O(1), which is optimal for this use case.
+If the scale were to increase and involve significantly more characters, using a SortedSet could have been
+advantageous. A SortedSet allows binary search operations in O(log n), which could be beneficial for quick
+range queries. However, it comes with the tradeoff of O(log n) insertion time compared to the constant-time
+insertion of a Hashtable.
+In our scenario, simplicity and practicality were key considerations. Implementing a SortedSet proved to be
+more complex, and since the current task involves only a small number of characters, the O(1) performance of
+the Hashtable aligns well with the task requirements. Additionally, the straightforward implementation of a
+Hashtable made it a clear choice for this task.
+
+- shell - sortedSet - We used this data structure because it naturally maintains elements in sorted order,
+making it ideal for adding characters and printing them directly in ascending order. Its simplicity and
+efficient insertion and retrieval align well with the small dataset of ASCII characters,
+
+3. Exceptions -
 - User input errors:
 We create InputExceptions who inheritance RunTimeExceptions and get a message parameter.
 When the input was invalid we threw this exceptions and catch them in the "run" methods, where we printed the
@@ -48,11 +65,12 @@ We also added ImageProcessor and SubImgCharMatcher exceptions, which are only re
 and help finding the problem at the first place possible. We threw those exceptions on the relevant places
 and catch them in the "run" method, and exit the program there, making sure that wrong actions aren't being made.
 
-4. SubImgCharMatcher API changes: - MAAYAN
-We added the setRoundMethod method to the API (public) to give users the ability to control how brightness
-calculations are rounded during the ASCII art generation process. Making this method public ensures
-flexibility, allowing users to dynamically change the rounding behavior (ABS, UP, or DOWN) based on their
-preferences or specific use cases without modifying the underlying code
+4. SubImgCharMatcher API changes: -
+We added the setRoundMethod method to the SubImgCharMatcher API (public) to allow users to control the
+rounding behavior during brightness calculations for ASCII art generation. This method enables dynamic
+adjustments between rounding modes (ABS, UP, or DOWN), providing greater flexibility and adaptability.
+Specifically, in this exercise, it was required for the run method in Shell, further justifying its inclusion
+as a public function. This change enhances the usability and extensibility of the API for various scenarios.
 
 5. API changes in the supplied files:
  we didn't change them

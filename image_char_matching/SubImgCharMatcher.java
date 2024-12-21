@@ -1,12 +1,12 @@
 package image_char_matching;
 
 import ascii_art.exceptions.CharMatcherExceptions;
+import ascii_art.exceptions.ImageProcessorExceptions;
 import ascii_art.exceptions.InputExceptions;
 
 import java.util.*;
 
 
-// TODO: add round above/ beneath
 
 /**
  * SubImgCharMatcher is a utility class that maps characters to brightness values,
@@ -25,7 +25,8 @@ public class SubImgCharMatcher {
     private static final String DOWN = "down";
     private static final String ROUND_INCORRECT_FORMAT_MESSAGE =
             "Did not change rounding method due to incorrect format.";
-    private static final String WRONG_METHOD_EXCEPTION = "wrong round method";
+    private static final String WRONG_METHOD_EXCEPTION = "Wrong round method";
+    private static final String WRONG_BRIGHTNESS_VALUE = "Calculated value < 0 or value > 1";
 
     private Map<Character, Double> charMap; // Stores raw brightness values for each character
     private Map<Character, Double> brightnessCharMap; // Stores normalized brightness values
@@ -108,34 +109,39 @@ public class SubImgCharMatcher {
      * Calculates the distance between the provided brightness and the character brightness
      * using the specified rounding method.
      *
-     * @param providedBrightness The brightness value provided by the user. It must be a double
-     *                           between 0 and 1 inclusive.
-     * @param currentCharBrightness     The brightness value associated with a character.
+     * @param providedBrightness     The brightness value provided by the user. It must be a double
+     *                                between 0 and 1 inclusive.
+     * @param currentCharBrightness  The brightness value associated with a character.
      * @return The calculated distance as a double.
-     *
-     * @throws CharMatcherExceptions if the rounding method is invalid or not recognized.
      *
      * Rounding methods:
      * - ABS: No rounding is applied. The absolute difference is returned.
-     * - UP: The providedBrightness is rounded up using Math.ceil before calculating the difference.
-     * - DOWN: The providedBrightness is rounded down using Math.floor before calculating the difference.
+     * - UP: Only considers brightness values greater than or equal to the provided brightness.
+     *       Returns the difference if the current character's brightness is greater, otherwise
+     *       returns Double.POSITIVE_INFINITY.
+     * - DOWN: Only considers brightness values less than or equal to the provided brightness.
+     *         Returns the difference if the current character's brightness is smaller, otherwise
+     *         returns Double.POSITIVE_INFINITY.
      */
     private double calculateDistance(double providedBrightness, double currentCharBrightness) {
         switch (this.roundMethod) {
             case ABS:
                 return Math.abs(currentCharBrightness - providedBrightness);
             case UP:
-                double upBrightness = Math.ceil(providedBrightness);
-                return Math.abs(currentCharBrightness - upBrightness);
+                // Closest from upward side
+                return (currentCharBrightness >= providedBrightness) ?
+                        currentCharBrightness - providedBrightness : Double.POSITIVE_INFINITY;
+
             case DOWN:
-                double floorBrightness = Math.floor(providedBrightness);
-                return Math.abs(currentCharBrightness - floorBrightness);
+                // Closest from downward side
+                return (currentCharBrightness <= providedBrightness) ?
+                        providedBrightness - currentCharBrightness : Double.POSITIVE_INFINITY;
+
             default:
                 throw new CharMatcherExceptions(WRONG_METHOD_EXCEPTION);
         }
     }
 
-//    todo: add to readme
     /**
      * Sets the rounding method for calculations.
      *
@@ -173,7 +179,7 @@ public class SubImgCharMatcher {
         int numTrueCells = getNumTrueCells(boolMatrix);
         double value = (double) numTrueCells / NUM_CELLS;
         if (value < 0 || value > 1) {
-            System.out.println("value < 0 or value > 1");
+            System.out.println(WRONG_BRIGHTNESS_VALUE);
         }
         return value;
     }
