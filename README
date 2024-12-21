@@ -63,7 +63,8 @@ When the input was invalid we threw this exceptions and catch them in the "run" 
 relevant message and return back to getting an input from the user.
 We also added ImageProcessor and SubImgCharMatcher exceptions, which are only relevant to the programmer
 and help finding the problem at the first place possible. We threw those exceptions on the relevant places
-and catch them in the "run" method, and exit the program there, making sure that wrong actions aren't being made.
+and catch them in the "run" method, and exit the program there, making sure that wrong
+actions aren't being made.
 
 4. SubImgCharMatcher API changes: -
 We added the setRoundMethod method to the SubImgCharMatcher API (public) to allow users to control the

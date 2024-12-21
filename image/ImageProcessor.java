@@ -6,7 +6,8 @@ import java.awt.*;
 
 /**
  * The ImageProcessor class provides various utilities for processing images, such as extending
- * their dimensions to powers of two, dividing them into smaller sub-images, and calculating brightness levels.
+ * their dimensions to powers of two, dividing them into smaller sub-images,
+ * and calculating brightness levels.
  */
 public class ImageProcessor {
     private static final String NULL_EXCEPTION = "Image is a null pointer.";

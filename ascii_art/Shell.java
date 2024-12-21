@@ -437,6 +437,35 @@ public class Shell {
         return new BrightnessMatrix(subImages);
     }
 
+    /**
+     * Runs the main loop of the ASCII art generation program.
+     * It processes user commands in real-time and performs actions such as
+     * adjusting character sets, modifying resolution, and generating ASCII art.
+     *
+     * @param imageName The name or path of the image to be processed.
+     *
+     * Command Flow:
+     * - Commands are read line by line and split into tokens for processing.
+     * - Supported commands include:
+     *   - "exit": Exits the program.
+     *   - "chars": Displays the current set of characters available for ASCII art.
+     *   - "add": Adds characters or ranges to the character set.
+     *   - "remove": Removes characters or ranges from the character set.
+     *   - "res": Adjusts the resolution of the output.
+     *   - "output": Sets the output method (console or HTML).
+     *   - "round": Adjusts the rounding method for brightness calculations.
+     *   - "asciiArt": Generates and outputs ASCII art based on the current configuration.
+     * - Invalid or unrecognized commands will result in error messages.
+     *
+     * Exception Handling:
+     * - Handles specific exceptions such as:
+     *   - {@link InputExceptions} for invalid user inputs.
+     *   - {@link CharSetExceptions} for character set operations.
+     *   - {@link ImageProcessorExceptions} for image processing issues.
+     *   - {@link CharMatcherExceptions} for brightness-to-character matching issues.
+     *   - {@link IOException} for I/O operations like file writing.
+     * - Prints relevant error messages and exits gracefully when critical errors occur.
+     */
     public void run(String imageName){
         try {
             this.image = new Image(imageName);
